@@ -2,42 +2,139 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; }
-        button { padding: 15px; margin: 10px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .hero-btn { background: #2c3e50; }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; margin: 0; padding: 10px; }
+        
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 100px; /* Отступ для кнопки внизу */
+        }
+
+        .hero-card {
+            cursor: pointer;
+            border: 2px solid #2c3e50;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: all 0.2s;
+            background: #1a1a1a;
+        }
+
+        .hero-card img {
+            width: 100%;
+            display: block;
+            filter: grayscale(30%);
+        }
+
+        .hero-card.selected {
+            border-color: #3498db;
+            box-shadow: 0 0 10px #3498db;
+        }
+
+        .hero-card.selected img {
+            filter: grayscale(0%);
+        }
+
+        .hero-name {
+            font-size: 10px;
+            padding: 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 20px 0;
+            border-top: 1px solid #333;
+            z-index: 100;
+        }
+
+        #send-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        #send-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
-    <h1>Dota Draft Helper</h1>
-    <p>Выберите героев врага:</p>
-    
-    <button class="hero-btn" onclick="selectHero('Pudge')">Pudge</button>
-    <button class="hero-btn" onclick="selectHero('Axe')">Axe</button>
-    <button class="hero-btn" onclick="selectHero('Lion')">Lion</button>
 
-    <hr>
-    <button onclick="sendToBot()">✅ ОТПРАВИТЬ В БОТА</button>
+    <h1>Dota Draft Helper</h1>
+    <p id="counter">Выбрано врагов: 0 / 5</p>
+    
+    <div class="hero-grid" id="grid">
+        </div>
+
+    <div class="footer">
+        <button id="send-btn" onclick="sendToBot()">✅ АНАЛИЗИРОВАТЬ</button>
+    </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть на все окно
+        tg.expand();
+
+        const heroes = [
+            "Abaddon", "Alchemist", "Ancient_Apparition", "Anti_Mage", "Arc_Warden", "Axe", "Bane", "Batrider", "Beastmaster", "Bloodseeker", "Bounty_Hunter", "Brewmaster", "Bristleback", "Broodmother", "Centaur_Warrunner", "Chaos_Knight", "Chen", "Clinkz", "Clockwerk", "Crystal_Maiden", "Dark_Seer", "Dark_Willow", "Dawnbreaker", "Dazzle", "Death_Prophet", "Disruptor", "Doom", "Dragon_Knight", "Drow_Ranger", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Ember_Spirit", "Enchantress", "Enigma", "Faceless_Void", "Grimstroke", "Gyrocopter", "Hoodwink", "Huskar", "Invoker", "Io", "Jakiro", "Juggernaut", "Keeper_of_the_Light", "Kunkka", "Legion_Commander", "Leshrac", "Lich", "Lifestealer", "Lina", "Lion", "Lone_Druid", "Luna", "Lycan", "Magnus", "Marci", "Mars", "Medusa", "Meepo", "Mirana", "Monkey_King", "Morphling", "Muerta", "Naga_Siren", "Natures_Prophet", "Necrophos", "Night_Stalker", "Nyx_Assassin", "Ogre_Magi", "Omniknight", "Oracle", "Outworld_Destroyer", "Pangolier", "Phantom_Assassin", "Phantom_Lancer", "Phoenix", "Primal_Beast", "Puck", "Pudge", "Pugna", "Queen_of_Pain", "Razor", "Riki", "Rubick", "Sand_King", "Shadow_Demon", "Shadow_Fiend", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Slardar", "Slark", "Snapfire", "Sniper", "Spectre", "Spirit_Breaker", "Storm_Spirit", "Sven", "Techies", "Templar_Assassin", "Terrorblade", "Tidehunter", "Timbersaw", "Tinker", "Tiny", "Treant_Protector", "Troll_Warlord", "Tusk", "Underlord", "Undying", "Ursa", "Vengeful_Spirit", "Venomancer", "Viper", "Visage", "Void_Spirit", "Warlock", "Weaver", "Windranger", "Winter_Wyvern", "Witch_Doctor", "Wraith_King", "Zeus"
+        ];
 
         let selectedEnemies = [];
+        const grid = document.getElementById('grid');
+        const counter = document.getElementById('counter');
 
-        function selectHero(name) {
-            selectedEnemies.push(name);
-            alert("Выбран: " + name);
-        }
+        // Создание карточек
+        heroes.forEach(name => {
+            const card = document.createElement('div');
+            card.className = 'hero-card';
+            
+            // Заменяем _ на пробел для отображения имени
+            const displayName = name.replace(/_/g, ' ');
+
+            card.innerHTML = `
+                <img src="images/${name}.png" alt="${name}" loading="lazy">
+                <div class="hero-name">${displayName}</div>
+            `;
+            
+            card.onclick = () => {
+                if (card.classList.contains('selected')) {
+                    card.classList.remove('selected');
+                    selectedEnemies = selectedEnemies.filter(h => h !== name);
+                } else if (selectedEnemies.length < 5) {
+                    card.classList.add('selected');
+                    selectedEnemies.push(name);
+                }
+                counter.innerText = `Выбрано врагов: ${selectedEnemies.length} / 5`;
+            };
+            grid.appendChild(card);
+        });
 
         function sendToBot() {
+            if (selectedEnemies.length === 0) {
+                tg.showAlert("Выбери хотя бы одного врага!");
+                return;
+            }
+
             let data = {
-                user_role: 3, // Для теста захардкодим поз 3
+                user_role: 3, 
                 enemies: selectedEnemies,
                 allies: {}
             };
-            // Отправляем данные боту (это закроет Mini App)
+            
             tg.sendData(JSON.stringify(data));
         }
     </script>
