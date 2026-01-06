@@ -21,51 +21,61 @@
         /* НАВИГАЦИЯ */
         .header-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #1a1a1a; position: sticky; top: 0; z-index: 105; border-bottom: 1px solid #333; height: 50px; box-sizing: border-box; }
         .back-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .back-btn:active { background: #444; }
 
-        /* СПИСОК РОЛЕЙ СОЮЗНИКОВ */
+        /* СПИСОК РОЛЕЙ */
         .role-selector { display: grid; gap: 10px; padding: 15px; }
-        .role-row { display: flex; align-items: center; background: #1a1a1a; padding: 10px 12px; border-radius: 10px; border: 1px solid #333; justify-content: space-between; min-height: 60px; }
+        .role-row { 
+            display: flex; align-items: center; background: #1a1a1a; padding: 10px 12px; border-radius: 10px; 
+            border: 1px solid #333; justify-content: space-between; min-height: 65px; position: relative;
+        }
+        /* Подсветка моей роли */
+        .role-row.my-role { border-color: #f1c40f; box-shadow: inset 0 0 10px rgba(241, 196, 15, 0.2); }
+        
         .role-left { display: flex; align-items: center; cursor: pointer; flex-grow: 1; text-align: left; }
-        .role-num { font-size: 20px; font-weight: bold; color: #3498db; margin-right: 15px; width: 20px; }
+        
+        /* Иконка роли из папки roles_images */
+        .role-icon { width: 30px; height: 30px; margin-right: 12px; background-size: contain; background-repeat: no-repeat; background-position: center; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
+        
+        .role-text-container { display: flex; flex-direction: column; }
+        .role-label { font-size: 14px; font-weight: bold; color: #3498db; }
+        .my-label-tag { font-size: 10px; color: #f1c40f; text-transform: uppercase; margin-top: 2px; }
+
         .role-hero-img { 
             width: 70px; height: 40px; background: #000; border-radius: 4px; 
             background-size: contain; background-position: center; background-repeat: no-repeat;
             border: 1px solid #444; margin-left: auto; margin-right: 10px; 
         }
+        
+        /* Кнопка "Это я" */
+        .set-me-btn { background: #444; color: #fff; border: none; font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+        .set-me-btn.active { background: #f1c40f; color: #000; font-weight: bold; }
+
         .clear-role { color: #e74c3c; font-size: 22px; padding: 5px 10px; cursor: pointer; font-weight: bold; }
 
         /* СЕТКА ГЕРОЕВ */
         .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; padding: 10px; }
-        .hero-card { cursor: pointer; border: 2px solid #2c3e50; border-radius: 4px; overflow: hidden; background: #1a1a1a; transition: transform 0.1s; position: relative; }
+        .hero-card { cursor: pointer; border: 2px solid #2c3e50; border-radius: 4px; overflow: hidden; background: #1a1a1a; transition: transform 0.1s; }
         .hero-card:active { transform: scale(0.85); }
         .hero-card img { width: 100%; display: block; pointer-events: none; }
-        .hero-card.selected { border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.6); z-index: 2; }
-        .attr-header { grid-column: 1 / -1; text-align: left; padding: 15px 5px 5px; font-size: 13px; color: #888; border-bottom: 1px solid #333; text-transform: uppercase; letter-spacing: 1px; }
+        .hero-card.selected { border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.6); }
+        .attr-header { grid-column: 1 / -1; text-align: left; padding: 15px 5px 5px; font-size: 13px; color: #888; border-bottom: 1px solid #333; text-transform: uppercase; }
 
         /* ВЕРХНИЕ СЛОТЫ ВРАГОВ */
         .enemy-header-slots { background: #1a1a1a; padding: 10px; border-bottom: 1px solid #333; position: sticky; top: 50px; z-index: 104; }
         .selected-slots { display: flex; justify-content: center; gap: 8px; }
-        .slot { 
-            width: 60px; height: 34px; border: 1px dashed #555; border-radius: 4px; 
-            background-size: contain; background-position: center; background-repeat: no-repeat; 
-            cursor: pointer; background-color: #000; transition: all 0.2s;
-        }
-        .slot.filled { border: 1px solid #e74c3c; box-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
+        .slot { width: 60px; height: 34px; border: 1px dashed #555; border-radius: 4px; background-size: contain; background-position: center; background-repeat: no-repeat; background-color: #000; }
+        .slot.filled { border: 1px solid #e74c3c; }
 
-        /* ФУТЕР И ПОИСК */
         .hidden { display: none !important; }
         .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 15, 15, 0.95); padding: 20px 0; z-index: 110; border-top: 1px solid #333; backdrop-filter: blur(10px); }
-        .send-btn { background: #27ae60; color: white; border: none; padding: 15px 50px; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
-        .send-btn:active { transform: scale(0.95); }
-
-        #hero-search { flex: 1; margin: 0 10px; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none; font-size: 16px; }
+        .send-btn { background: #27ae60; color: white; border: none; padding: 15px 50px; border-radius: 30px; font-weight: bold; font-size: 16px; }
+        #hero-search { flex: 1; margin: 0 10px; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="screen-main" class="screen active">
-        <h2 style="margin-top: 40px; color: #eee; letter-spacing: 1px;">DRAFT HELPER</h2>
+        <h2 style="margin-top: 40px; color: #eee;">DRAFT HELPER</h2>
         <div class="main-menu">
             <button class="menu-btn btn-allies" onclick="showScreen('screen-allies')">СОЮЗНИКИ</button>
             <button class="menu-btn btn-enemies" onclick="openHeroPicker('enemies')">ПРОТИВНИКИ</button>
@@ -97,15 +107,17 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Данные героев (те же)
         const heroData = {
-            "str": { name: "Сила", list: ["Abaddon", "Alchemist", "Axe", "Beastmaster", "Brewmaster", "Bristleback", "Centaur_Warrunner", "Chaos_Knight", "Dawnbreaker", "Doom", "Dragon_Knight", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Huskar", "Kunkka", "Legion_Commander", "Lifestealer", "Mars", "Night_Stalker", "Omniknight", "Primal_Beast", "Pudge", "Slardar", "Spirit_Breaker", "Sven", "Tidehunter", "Timbersaw", "Tiny", "Treant_Protector", "Tusk", "Underlord", "Undying", "Wraith_King", "Largo"] },
-            "agi": { name: "Ловкость", list: ["Anti-Mage", "Arc_Warden", "Bloodseeker", "Bounty_Hunter", "Clinkz", "Drow_Ranger", "Ember_Spirit", "Faceless_Void", "Gyrocopter", "Hoodwink", "Juggernaut", "Luna", "Medusa", "Meepo", "Monkey_King", "Morphling", "Naga_Siren", "Phantom_Assassin", "Phantom_Lancer", "Razor", "Riki", "Shadow_Fiend", "Slark", "Sniper", "Spectre", "Templar_Assassin", "Terrorblade", "Troll_Warlord", "Ursa", "Viper", "Weaver", "Kez"] },
-            "int": { name: "Интеллект", list: ["Ancient_Apparition", "Bane", "Batrider", "Crystal_Maiden", "Dark_Willow", "Death_Prophet", "Disruptor", "Enchantress", "Grimstroke", "Invoker", "Jakiro", "Keeper_of_the_Light", "Leshrac", "Lich", "Lina", "Lion", "Muerta", "Nature's_Prophet", "Necrophos", "Oracle", "Outworld_Destroyer", "Puck", "Pugna", "Queen_of_Pain", "Rubick", "Shadow_Demon", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Storm_Spirit", "Tinker", "Warlock", "Witch_Doctor", "Zeus", "Ringmaster"] },
+            "str": { name: "Сила", list: ["Abaddon", "Alchemist", "Axe", "Beastmaster", "Brewmaster", "Bristleback", "Centaur_Warrunner", "Chaos_Knight", "Dawnbreaker", "Doom", "Dragon_Knight", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Huskar", "Kunkka", "Legion_Commander", "Lifestealer", "Mars", "Night_Stalker", "Omniknight", "Primal_Beast", "Pudge", "Slardar", "Spirit_Breaker", "Sven", "Tidehunter", "Timbersaw", "Tiny", "Treant_Protector", "Tusk", "Underlord", "Undying", "Wraith_King"] },
+            "agi": { name: "Ловкость", list: ["Anti-Mage", "Arc_Warden", "Bloodseeker", "Bounty_Hunter", "Clinkz", "Drow_Ranger", "Ember_Spirit", "Faceless_Void", "Gyrocopter", "Hoodwink", "Juggernaut", "Kez", "Luna", "Medusa", "Meepo", "Monkey_King", "Morphling", "Naga_Siren", "Phantom_Assassin", "Phantom_Lancer", "Razor", "Riki", "Shadow_Fiend", "Slark", "Sniper", "Spectre", "Templar_Assassin", "Terrorblade", "Troll_Warlord", "Ursa", "Viper", "Weaver"] },
+            "int": { name: "Интеллект", list: ["Ancient_Apparition", "Bane", "Batrider", "Crystal_Maiden", "Dark_Willow", "Death_Prophet", "Disruptor", "Enchantress", "Grimstroke", "Invoker", "Jakiro", "Keeper_of_the_Light", "Leshrac", "Lich", "Lina", "Lion", "Muerta", "Nature's_Prophet", "Necrophos", "Oracle", "Outworld_Destroyer", "Puck", "Pugna", "Ringmaster", "Queen_of_Pain", "Rubick", "Shadow_Demon", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Storm_Spirit", "Tinker", "Warlock", "Witch_Doctor", "Zeus"] },
             "uni": { name: "Универсалы", list: ["Broodmother", "Chen", "Clockwerk", "Dark_Seer", "Dazzle", "Enigma", "Io", "Lone_Druid", "Lycan", "Magnus", "Marci", "Mirana", "Nyx_Assassin", "Ogre_Magi", "Pangolier", "Phoenix", "Sand_King", "Snapfire", "Techies", "Vengeful_Spirit", "Venomancer", "Visage", "Void_Spirit", "Windranger", "Winter_Wyvern"] }
         };
-        
+
         let selectedEnemies = [];
         let selectedAllies = { 1: null, 2: null, 3: null, 4: null, 5: null };
+        let myRole = null; // Кто из них "Я"
         let currentMode = '';
         let currentRole = null;
         const roleNames = { 1: "Керри", 2: "Мид", 3: "Хард", 4: "Саппорт", 5: "Полная подд." };
@@ -121,17 +133,14 @@
             currentRole = role;
             document.getElementById('hero-search').value = '';
             showScreen('screen-picker');
-            
             const enemyBar = document.getElementById('enemy-slots-container');
-            const backBtn = document.getElementById('picker-back-btn');
-            
             if(mode === 'enemies') {
                 enemyBar.classList.remove('hidden');
-                backBtn.onclick = () => showScreen('screen-main');
+                document.getElementById('picker-back-btn').onclick = () => showScreen('screen-main');
                 renderEnemySlots();
             } else {
                 enemyBar.classList.add('hidden');
-                backBtn.onclick = () => showScreen('screen-allies');
+                document.getElementById('picker-back-btn').onclick = () => showScreen('screen-allies');
             }
             renderGrid();
         }
@@ -164,15 +173,12 @@
                 if (selectedEnemies.includes(name)) {
                     selectedEnemies = selectedEnemies.filter(h => h !== name);
                 } else if (selectedEnemies.length < 5) {
-                    // Проверяем, не занят ли герой союзником
-                    if (Object.values(selectedAllies).includes(name)) return tg.showAlert("Герой уже выбран союзником!");
+                    if (Object.values(selectedAllies).includes(name)) return;
                     selectedEnemies.push(name);
                 }
                 renderEnemySlots();
             } else {
-                // Если герой уже выбран у врагов, не даем выбрать
-                if (selectedEnemies.includes(name)) return tg.showAlert("Этот герой у противника!");
-                // Если герой уже на другой роли — переносим его
+                if (selectedEnemies.includes(name)) return;
                 for (let r in selectedAllies) if(selectedAllies[r] === name) selectedAllies[r] = null;
                 selectedAllies[currentRole] = name;
                 showScreen('screen-allies');
@@ -188,12 +194,7 @@
                 slot.className = 'slot' + (selectedEnemies[i] ? ' filled' : '');
                 if(selectedEnemies[i]) {
                     slot.style.backgroundImage = `url('images/${selectedEnemies[i]}.png')`;
-                    slot.onclick = (e) => {
-                        e.stopPropagation();
-                        selectedEnemies.splice(i, 1);
-                        renderEnemySlots();
-                        renderGrid();
-                    };
+                    slot.onclick = (e) => { e.stopPropagation(); selectedEnemies.splice(i, 1); renderEnemySlots(); renderGrid(); };
                 }
                 row.appendChild(slot);
             }
@@ -204,18 +205,31 @@
             list.innerHTML = '';
             for (let i = 1; i <= 5; i++) {
                 const hero = selectedAllies[i];
+                const isMe = (myRole == i);
                 const row = document.createElement('div');
-                row.className = 'role-row';
+                row.className = 'role-row' + (isMe ? ' my-role' : '');
+                
                 row.innerHTML = `
                     <div class="role-left" onclick="openHeroPicker('allies', ${i})">
-                        <span class="role-num">${i}</span>
-                        <span>${roleNames[i]}</span>
+                        <div class="role-icon" style="background-image: url('roles_images/${i}.png')"></div>
+                        <div class="role-text-container">
+                            <span class="role-label">${roleNames[i]}</span>
+                            ${isMe ? '<span class="my-label-tag">Это вы</span>' : ''}
+                        </div>
                         <div class="role-hero-img" style="background-image: ${hero ? `url('images/${hero}.png')` : 'none'}"></div>
                     </div>
-                    ${hero ? `<div class="clear-role" onclick="clearRole(${i})">×</div>` : ''}
+                    <div style="display:flex; align-items:center;">
+                        <button class="set-me-btn ${isMe ? 'active' : ''}" onclick="setMyRole(${i})">${isMe ? 'Я' : 'Это я'}</button>
+                        ${hero ? `<div class="clear-role" onclick="clearRole(${i})">×</div>` : ''}
+                    </div>
                 `;
                 list.appendChild(row);
             }
+        }
+
+        function setMyRole(i) {
+            myRole = i;
+            renderAlliesList();
         }
 
         function clearRole(roleNum) {
@@ -228,19 +242,15 @@
             const q = document.getElementById('hero-search').value.toLowerCase().trim();
             document.querySelectorAll('.hero-card').forEach(card => {
                 const heroName = card.querySelector('img').getAttribute('data-hero').toLowerCase().replace('_', ' ');
-                const words = heroName.split(' ');
-                const isMatch = words.some(word => word.startsWith(q)) || heroName.startsWith(q);
-                card.classList.toggle('hidden', q !== "" && !isMatch);
+                card.classList.toggle('hidden', q !== "" && !heroName.includes(q));
             });
         }
 
         function sendToBot() {
-            if (selectedEnemies.length === 0 && Object.values(selectedAllies).every(v => v === null)) {
-                return tg.showAlert("Выберите хотя бы одного героя!");
-            }
             tg.sendData(JSON.stringify({ 
                 enemies: selectedEnemies, 
-                allies: selectedAllies 
+                allies: selectedAllies,
+                myRole: myRole 
             }));
         }
 
