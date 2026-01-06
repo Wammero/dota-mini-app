@@ -67,8 +67,8 @@
         .uni { color: #f5b041; border-bottom: 1px solid #f5b041; }
 
         .hero-card { cursor: pointer; border: 2px solid #2c3e50; border-radius: 4px; overflow: hidden; background: #1a1a1a; }
-        .hero-card img { width: 100%; display: block; filter: grayscale(100%); opacity: 0.6; }
-        .hero-card.selected { border-color: #3498db; }
+        .hero-card img { width: 100%; display: none; filter: grayscale(100%); opacity: 1; }
+        .hero-card.selected { border-color: #3498db; box-shadow: 0 0 15px rgba(52, 152, 219, 0.7); transform: scale(1.05); z-index: 10;}
         .hero-card.selected img { filter: grayscale(0%); opacity: 1; }
 
         .hidden { display: none; }
@@ -150,14 +150,16 @@
         }
 
         function updateUI() {
-            // Обновляем карточки в основной сетке
+            // Сначала убираем выделение со всех карточек
             document.querySelectorAll('.hero-card').forEach(card => card.classList.remove('selected'));
+            
+            // Ставим рамку только выбранным
             selectedEnemies.forEach(name => {
                 const card = document.getElementById(`card-${name}`);
                 if (card) card.classList.add('selected');
             });
 
-            // Обновляем слоты сверху
+            // Обновляем слоты в верхней панели
             const slots = document.querySelectorAll('.slot');
             slots.forEach((slot, i) => {
                 if (selectedEnemies[i]) {
