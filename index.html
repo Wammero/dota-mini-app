@@ -22,24 +22,25 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            min-height: 60px;
+            min-height: 45px;
+            margin-bottom: 10px;
         }
 
         .slot {
             width: 60px;
-            height: 40px;
+            height: 36px;
             border: 2px dashed #444;
             border-radius: 4px;
-            position: relative;
             background-size: cover;
             background-position: center;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .slot.filled { border: 2px solid #3498db; box-shadow: 0 0 5px #3498db; }
+        .slot.filled { border: 2px solid #3498db; box-shadow: 0 0 8px #3498db; }
 
         /* ПОИСК */
-        .search-container { padding: 10px 0; }
+        .search-container { padding: 5px 0; }
         #hero-search {
             width: 90%;
             padding: 12px 20px;
@@ -60,22 +61,70 @@
             margin-bottom: 100px;
         }
 
-        .attr-header { grid-column: 1 / -1; text-align: left; padding: 10px; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-top: 15px; }
+        .attr-header { 
+            grid-column: 1 / -1; 
+            text-align: left; 
+            padding: 10px 5px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            margin-top: 15px; 
+        }
+        
         .str { color: #ec7063; border-bottom: 1px solid #ec7063; }
         .agi { color: #58d68d; border-bottom: 1px solid #58d68d; }
         .int { color: #5dade2; border-bottom: 1px solid #5dade2; }
         .uni { color: #f5b041; border-bottom: 1px solid #f5b041; }
 
-        .hero-card { cursor: pointer; border: 2px solid #2c3e50; border-radius: 4px; overflow: hidden; background: #1a1a1a; }
-        .hero-card img { width: 100%; display: none; filter: grayscale(100%); opacity: 1; }
-        .hero-card.selected { border-color: #3498db; box-shadow: 0 0 15px rgba(52, 152, 219, 0.7); transform: scale(1.05); z-index: 10;}
-        .hero-card.selected img { filter: grayscale(0%); opacity: 1; }
+        .hero-card { 
+            cursor: pointer; 
+            border: 2px solid #2c3e50; 
+            border-radius: 4px; 
+            overflow: hidden; 
+            background: #1a1a1a; 
+            transition: all 0.2s;
+        }
+
+        /* ИСПРАВЛЕНО: Теперь картинки видны всегда */
+        .hero-card img { 
+            width: 100%; 
+            display: block; 
+            filter: none; 
+            opacity: 1; 
+        }
+
+        /* Подсветка выбранного героя в сетке */
+        .hero-card.selected { 
+            border-color: #3498db; 
+            box-shadow: 0 0 10px #3498db;
+            transform: scale(1.05);
+            z-index: 10;
+        }
 
         .hidden { display: none; }
-        .hero-name { font-size: 9px; padding: 2px 0; }
+        .hero-name { font-size: 10px; padding: 4px 2px; height: 24px; display: flex; align-items: center; justify-content: center; }
 
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #111; padding: 15px 0; z-index: 100; border-top: 1px solid #333; }
-        #send-btn { background: #27ae60; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .footer { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: #111; 
+            padding: 20px 0; 
+            z-index: 100; 
+            border-top: 1px solid #333; 
+        }
+        
+        #send-btn { 
+            background: #27ae60; 
+            color: white; 
+            border: none; 
+            padding: 15px 40px; 
+            border-radius: 30px; 
+            font-weight: bold; 
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -150,16 +199,16 @@
         }
 
         function updateUI() {
-            // Сначала убираем выделение со всех карточек
+            // Сброс всех карточек
             document.querySelectorAll('.hero-card').forEach(card => card.classList.remove('selected'));
             
-            // Ставим рамку только выбранным
+            // Подсветка выбранных в сетке
             selectedEnemies.forEach(name => {
                 const card = document.getElementById(`card-${name}`);
                 if (card) card.classList.add('selected');
             });
 
-            // Обновляем слоты в верхней панели
+            // Обновление верхних слотов
             const slots = document.querySelectorAll('.slot');
             slots.forEach((slot, i) => {
                 if (selectedEnemies[i]) {
@@ -176,9 +225,14 @@
             const query = document.getElementById('hero-search').value.toLowerCase().trim();
             document.querySelectorAll('.hero-card').forEach(card => {
                 const nameParts = card.getAttribute('data-name').split('_');
-                const isMatch = nameParts.some(part => part.startsWith(query));
+                // Также проверяем полное имя на случай имен с дефисом (Anti-Mage)
+                const fullName = card.getAttribute('data-name');
+                const isMatch = nameParts.some(part => part.startsWith(query)) || fullName.startsWith(query);
+                
                 isMatch || query === "" ? card.classList.remove('hidden') : card.classList.add('hidden');
             });
+            
+            // Скрытие пустых заголовков
             for (const key in heroData) {
                 const visible = document.querySelectorAll(`.hero-card[data-attr="${key}"]:not(.hidden)`).length;
                 document.getElementById(`header-${key}`).style.display = visible ? 'block' : 'none';
@@ -186,8 +240,11 @@
         }
 
         function sendToBot() {
-            if (selectedEnemies.length === 0) return tg.showAlert("Выберите врагов!");
-            tg.sendData(JSON.stringify({ user_role: 3, enemies: selectedEnemies }));
+            if (selectedEnemies.length === 0) return tg.showAlert("Выберите хотя бы одного врага!");
+            tg.sendData(JSON.stringify({ 
+                user_role: 3, 
+                enemies: selectedEnemies 
+            }));
         }
     </script>
 </body>
