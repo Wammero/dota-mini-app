@@ -7,6 +7,28 @@
     <style>
         body { font-family: sans-serif; background: #121212; color: white; text-align: center; margin: 0; padding: 10px; }
         
+        /* Стили для поиска */
+        .search-container {
+            position: sticky;
+            top: 0;
+            background: #121212;
+            padding: 10px 0;
+            z-index: 101;
+        }
+
+        #hero-search {
+            width: 90%;
+            padding: 12px 20px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #hero-search:focus { border-color: #3498db; }
+
         .hero-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
@@ -28,7 +50,6 @@
             align-items: center;
         }
 
-        /* Цвета атрибутов как в игре */
         .str { color: #ec7063; }
         .agi { color: #58d68d; }
         .int { color: #5dade2; }
@@ -43,29 +64,14 @@
             background: #1a1a1a;
         }
 
-        .hero-card img {
-            width: 100%;
-            display: block;
-            filter: grayscale(40%);
-        }
+        /* Класс для скрытия при поиске */
+        .hidden { display: none; }
 
-        .hero-card.selected {
-            border-color: #3498db;
-            box-shadow: 0 0 10px #3498db;
-            transform: translateY(-3px);
-        }
+        .hero-card img { width: 100%; display: block; filter: grayscale(40%); }
+        .hero-card.selected { border-color: #3498db; box-shadow: 0 0 10px #3498db; transform: translateY(-3px); }
+        .hero-card.selected img { filter: grayscale(0%); }
 
-        .hero-card.selected img {
-            filter: grayscale(0%);
-        }
-
-        .hero-name {
-            font-size: 10px;
-            padding: 3px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .hero-name { font-size: 10px; padding: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .footer {
             position: fixed;
@@ -93,6 +99,11 @@
 <body>
 
     <h1>Dota Draft Helper</h1>
+    
+    <div class="search-container">
+        <input type="text" id="hero-search" placeholder="Поиск героя..." oninput="filterHeroes()">
+    </div>
+
     <p id="counter">Выбрано врагов: 0 / 5</p>
     
     <div class="hero-grid" id="grid"></div>
@@ -105,42 +116,30 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Герои, разделенные по атрибутам
         const heroData = {
-            "str": {
-                name: "Сила",
-                list: ["Abaddon", "Alchemist", "Axe", "Beastmaster", "Brewmaster", "Bristleback", "Centaur_Warrunner", "Chaos_Knight", "Dawnbreaker", "Doom", "Dragon_Knight", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Huskar", "Kunkka", "Legion_Commander", "Lifestealer", "Mars", "Night_Stalker", "Omniknight", "Primal_Beast", "Pudge", "Slardar", "Spirit_Breaker", "Sven", "Tidehunter", "Timbersaw", "Tiny", "Treant_Protector", "Tusk", "Underlord", "Undying", "Wraith_King"]
-            },
-            "agi": {
-                name: "Ловкость",
-                list: ["Anti-Mage", "Arc_Warden", "Bloodseeker", "Bounty_Hunter", "Clinkz", "Drow_Ranger", "Ember_Spirit", "Faceless_Void", "Gyrocopter", "Hoodwink", "Juggernaut", "Luna", "Medusa", "Meepo", "Monkey_King", "Morphling", "Naga_Siren", "Phantom_Assassin", "Phantom_Lancer", "Razor", "Riki", "Shadow_Fiend", "Slark", "Sniper", "Spectre", "Templar_Assassin", "Terrorblade", "Troll_Warlord", "Ursa", "Viper", "Weaver"]
-            },
-            "int": {
-                name: "Интеллект",
-                list: ["Ancient_Apparition", "Bane", "Batrider", "Crystal_Maiden", "Dark_Willow", "Death_Prophet", "Disruptor", "Enchantress", "Grimstroke", "Invoker", "Jakiro", "Keeper_of_the_Light", "Leshrac", "Lich", "Lina", "Lion", "Muerta", "Nature's_Prophet", "Necrophos", "Oracle", "Outworld_Destroyer", "Puck", "Pugna", "Queen_of_Pain", "Rubick", "Shadow_Demon", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Storm_Spirit", "Tinker", "Warlock", "Witch_Doctor", "Zeus"]
-            },
-            "uni": {
-                name: "Универсалы",
-                list: ["Broodmother", "Chen", "Clockwerk", "Dark_Seer", "Dazzle", "Enigma", "Io", "Lone_Druid", "Lycan", "Magnus", "Marci", "Mirana", "Nyx_Assassin", "Ogre_Magi", "Pangolier", "Phoenix", "Sand_King", "Snapfire", "Techies", "Vengeful_Spirit", "Venomancer", "Visage", "Void_Spirit", "Windranger", "Winter_Wyvern"]
-            }
+            "str": { name: "Сила", list: ["Abaddon", "Alchemist", "Axe", "Beastmaster", "Brewmaster", "Bristleback", "Centaur_Warrunner", "Chaos_Knight", "Dawnbreaker", "Doom", "Dragon_Knight", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Huskar", "Kunkka", "Legion_Commander", "Lifestealer", "Mars", "Night_Stalker", "Omniknight", "Primal_Beast", "Pudge", "Slardar", "Spirit_Breaker", "Sven", "Tidehunter", "Timbersaw", "Tiny", "Treant_Protector", "Tusk", "Underlord", "Undying", "Wraith_King", "Largo"] },
+            "agi": { name: "Ловкость", list: ["Anti-Mage", "Arc_Warden", "Bloodseeker", "Bounty_Hunter", "Clinkz", "Drow_Ranger", "Ember_Spirit", "Faceless_Void", "Gyrocopter", "Hoodwink", "Juggernaut", "Luna", "Medusa", "Meepo", "Monkey_King", "Morphling", "Naga_Siren", "Phantom_Assassin", "Phantom_Lancer", "Razor", "Riki", "Shadow_Fiend", "Slark", "Sniper", "Spectre", "Templar_Assassin", "Terrorblade", "Troll_Warlord", "Ursa", "Viper", "Weaver", "Kez"] },
+            "int": { name: "Интеллект", list: ["Ancient_Apparition", "Bane", "Batrider", "Crystal_Maiden", "Dark_Willow", "Death_Prophet", "Disruptor", "Enchantress", "Grimstroke", "Invoker", "Jakiro", "Keeper_of_the_Light", "Leshrac", "Lich", "Lina", "Lion", "Muerta", "Nature's_Prophet", "Necrophos", "Oracle", "Outworld_Destroyer", "Puck", "Pugna", "Queen_of_Pain", "Rubick", "Shadow_Demon", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Storm_Spirit", "Tinker", "Warlock", "Witch_Doctor", "Zeus", "Ringmaster"] },
+            "uni": { name: "Универсалы", list: ["Broodmother", "Chen", "Clockwerk", "Dark_Seer", "Dazzle", "Enigma", "Io", "Lone_Druid", "Lycan", "Magnus", "Marci", "Mirana", "Nyx_Assassin", "Ogre_Magi", "Pangolier", "Phoenix", "Sand_King", "Snapfire", "Techies", "Vengeful_Spirit", "Venomancer", "Visage", "Void_Spirit", "Windranger", "Winter_Wyvern"] }
         };
 
         let selectedEnemies = [];
         const grid = document.getElementById('grid');
-        const counter = document.getElementById('counter');
 
         // Отрисовка
         for (const key in heroData) {
-            // Добавляем заголовок группы
             const header = document.createElement('div');
             header.className = `attr-header ${key}`;
             header.innerText = heroData[key].name;
+            header.id = `header-${key}`;
             grid.appendChild(header);
 
-            // Добавляем героев группы
             heroData[key].list.forEach(name => {
                 const card = document.createElement('div');
                 card.className = 'hero-card';
+                card.setAttribute('data-name', name.toLowerCase());
+                card.setAttribute('data-attr', key);
+                
                 const displayName = name.replace(/_/g, ' ');
 
                 card.innerHTML = `
@@ -156,10 +155,37 @@
                         card.classList.add('selected');
                         selectedEnemies.push(name);
                     }
-                    counter.innerText = `Выбрано врагов: ${selectedEnemies.length} / 5`;
+                    document.getElementById('counter').innerText = `Выбрано врагов: ${selectedEnemies.length} / 5`;
                 };
                 grid.appendChild(card);
             });
+        }
+
+        // Функция фильтрации
+        function filterHeroes() {
+            const query = document.getElementById('hero-search').value.toLowerCase();
+            const cards = document.querySelectorAll('.hero-card');
+            
+            // Скрываем/показываем карточки
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                if (name.includes(query.replace(' ', '_')) || name.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Скрываем заголовки, если в категории нет видимых героев
+            for (const key in heroData) {
+                const header = document.getElementById(`header-${key}`);
+                const visibleInGroup = document.querySelectorAll(`.hero-card[data-attr="${key}"]:not(.hidden)`);
+                if (visibleInGroup.length === 0) {
+                    header.classList.add('hidden');
+                } else {
+                    header.classList.remove('hidden');
+                }
+            }
         }
 
         function sendToBot() {
@@ -169,8 +195,7 @@
             }
             tg.sendData(JSON.stringify({
                 user_role: 3, 
-                enemies: selectedEnemies,
-                allies: {}
+                enemies: selectedEnemies
             }));
         }
     </script>
