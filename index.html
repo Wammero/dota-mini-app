@@ -161,22 +161,32 @@
             });
         }
 
-        // Функция фильтрации
-        function filterHeroes() {
-            const query = document.getElementById('hero-search').value.toLowerCase();
+       function filterHeroes() {
+            const query = document.getElementById('hero-search').value.toLowerCase().trim();
             const cards = document.querySelectorAll('.hero-card');
             
-            // Скрываем/показываем карточки
             cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                if (name.includes(query.replace(' ', '_')) || name.includes(query)) {
+                const name = card.getAttribute('data-name'); // например, "treant_protector"
+                
+                // Разбиваем имя героя на части по подчеркиванию
+                // "treant_protector" -> ["treant", "protector"]
+                const words = name.split('_');
+
+                // Проверяем: начинается ли ХОТЯ БЫ ОДНО слово из названия героя с нашего запроса
+                const isMatch = words.some(word => word.startsWith(query));
+
+                if (isMatch || query === "") {
                     card.classList.remove('hidden');
                 } else {
                     card.classList.add('hidden');
                 }
             });
 
-            // Скрываем заголовки, если в категории нет видимых героев
+            updateHeaders();
+        }
+
+        // Вынес обновление заголовков в отдельную функцию для чистоты
+        function updateHeaders() {
             for (const key in heroData) {
                 const header = document.getElementById(`header-${key}`);
                 const visibleInGroup = document.querySelectorAll(`.hero-card[data-attr="${key}"]:not(.hidden)`);
