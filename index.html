@@ -243,12 +243,21 @@
 
         function toggleMyRole(event, i) {
             event.stopPropagation();
+            
             if (myRole == i) {
-                myRole = null; // Повторный клик снимает пометку
+                // Если нажимаем на уже выбранную роль — просто снимаем пометку
+                myRole = null;
             } else {
+                // Если выбираем новую роль как "Свою":
+                // 1. Убираем иконку героя, который там был (если был)
+                selectedAllies[i] = null;
+                // 2. Ставим пометку, что это теперь наша роль
                 myRole = i;
             }
+            
+            // Перерисовываем список и сетку (чтобы обновились рамки героев)
             renderAlliesList();
+            renderGrid();
             updateSendButton();
         }
 
@@ -264,7 +273,7 @@
                 warning.innerText = "";
             } else {
                 btn.disabled = true;
-                if (!roleSelected && !anyHeroSelected) warning.innerText = "Выберите роль и героя";
+                if (!roleSelected && !anyHeroSelected) warning.innerText = "Выберите роль и хотя бы одного героя";
                 else if (!roleSelected) warning.innerText = "Укажите свою роль";
                 else warning.innerText = "Выберите хотя бы одного героя";
             }
