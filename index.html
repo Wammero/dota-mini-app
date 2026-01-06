@@ -9,11 +9,30 @@
         
         .hero-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
             gap: 10px;
             padding: 10px;
-            margin-bottom: 100px; /* Отступ для кнопки внизу */
+            margin-bottom: 100px;
         }
+
+        .attr-header {
+            grid-column: 1 / -1;
+            text-align: left;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Цвета атрибутов как в игре */
+        .str { color: #ec7063; }
+        .agi { color: #58d68d; }
+        .int { color: #5dade2; }
+        .uni { color: #f5b041; }
 
         .hero-card {
             cursor: pointer;
@@ -27,12 +46,13 @@
         .hero-card img {
             width: 100%;
             display: block;
-            filter: grayscale(30%);
+            filter: grayscale(40%);
         }
 
         .hero-card.selected {
             border-color: #3498db;
             box-shadow: 0 0 10px #3498db;
+            transform: translateY(-3px);
         }
 
         .hero-card.selected img {
@@ -52,7 +72,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(26, 26, 26, 0.95);
+            background: rgba(20, 20, 20, 0.95);
             padding: 20px 0;
             border-top: 1px solid #333;
             z-index: 100;
@@ -67,10 +87,7 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-
-        #send-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -78,8 +95,7 @@
     <h1>Dota Draft Helper</h1>
     <p id="counter">Выбрано врагов: 0 / 5</p>
     
-    <div class="hero-grid" id="grid">
-        </div>
+    <div class="hero-grid" id="grid"></div>
 
     <div class="footer">
         <button id="send-btn" onclick="sendToBot()">✅ АНАЛИЗИРОВАТЬ</button>
@@ -89,53 +105,73 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        const heroes = [
-            "Abaddon", "Alchemist", "Ancient_Apparition", "Anti-Mage", "Arc_Warden", "Axe", "Bane", "Batrider", "Beastmaster", "Bloodseeker", "Bounty_Hunter", "Brewmaster", "Bristleback", "Broodmother", "Centaur_Warrunner", "Chaos_Knight", "Chen", "Clinkz", "Clockwerk", "Crystal_Maiden", "Dark_Seer", "Dark_Willow", "Dawnbreaker", "Dazzle", "Death_Prophet", "Disruptor", "Doom", "Dragon_Knight", "Drow_Ranger", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Ember_Spirit", "Enchantress", "Enigma", "Faceless_Void", "Grimstroke", "Gyrocopter", "Hoodwink", "Huskar", "Invoker", "Io", "Jakiro", "Juggernaut", "Keeper_of_the_Light", "Kunkka", "Legion_Commander", "Leshrac", "Lich", "Lifestealer", "Lina", "Lion", "Lone_Druid", "Luna", "Lycan", "Magnus", "Marci", "Mars", "Medusa", "Meepo", "Mirana", "Monkey_King", "Morphling", "Muerta", "Naga_Siren", "Nature's_Prophet", "Necrophos", "Night_Stalker", "Nyx_Assassin", "Ogre_Magi", "Omniknight", "Oracle", "Outworld_Destroyer", "Pangolier", "Phantom_Assassin", "Phantom_Lancer", "Phoenix", "Primal_Beast", "Puck", "Pudge", "Pugna", "Queen_of_Pain", "Razor", "Riki", "Rubick", "Sand_King", "Shadow_Demon", "Shadow_Fiend", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Slardar", "Slark", "Snapfire", "Sniper", "Spectre", "Spirit_Breaker", "Storm_Spirit", "Sven", "Techies", "Templar_Assassin", "Terrorblade", "Tidehunter", "Timbersaw", "Tinker", "Tiny", "Treant_Protector", "Troll_Warlord", "Tusk", "Underlord", "Undying", "Ursa", "Vengeful_Spirit", "Venomancer", "Viper", "Visage", "Void_Spirit", "Warlock", "Weaver", "Windranger", "Winter_Wyvern", "Witch_Doctor", "Wraith_King", "Zeus"
-        ];
+        // Герои, разделенные по атрибутам
+        const heroData = {
+            "str": {
+                name: "Сила",
+                list: ["Abaddon", "Alchemist", "Axe", "Beastmaster", "Brewmaster", "Bristleback", "Centaur_Warrunner", "Chaos_Knight", "Dawnbreaker", "Doom", "Dragon_Knight", "Earth_Spirit", "Earthshaker", "Elder_Titan", "Huskar", "Kunkka", "Legion_Commander", "Lifestealer", "Mars", "Night_Stalker", "Omniknight", "Primal_Beast", "Pudge", "Slardar", "Spirit_Breaker", "Sven", "Tidehunter", "Timbersaw", "Tiny", "Treant_Protector", "Tusk", "Underlord", "Undying", "Wraith_King"]
+            },
+            "agi": {
+                name: "Ловкость",
+                list: ["Anti-Mage", "Arc_Warden", "Bloodseeker", "Bounty_Hunter", "Clinkz", "Drow_Ranger", "Ember_Spirit", "Faceless_Void", "Gyrocopter", "Hoodwink", "Juggernaut", "Luna", "Medusa", "Meepo", "Monkey_King", "Morphling", "Naga_Siren", "Phantom_Assassin", "Phantom_Lancer", "Razor", "Riki", "Shadow_Fiend", "Slark", "Sniper", "Spectre", "Templar_Assassin", "Terrorblade", "Troll_Warlord", "Ursa", "Viper", "Weaver"]
+            },
+            "int": {
+                name: "Интеллект",
+                list: ["Ancient_Apparition", "Bane", "Batrider", "Crystal_Maiden", "Dark_Willow", "Death_Prophet", "Disruptor", "Enchantress", "Grimstroke", "Invoker", "Jakiro", "Keeper_of_the_Light", "Leshrac", "Lich", "Lina", "Lion", "Muerta", "Nature's_Prophet", "Necrophos", "Oracle", "Outworld_Destroyer", "Puck", "Pugna", "Queen_of_Pain", "Rubick", "Shadow_Demon", "Shadow_Shaman", "Silencer", "Skywrath_Mage", "Storm_Spirit", "Tinker", "Warlock", "Witch_Doctor", "Zeus"]
+            },
+            "uni": {
+                name: "Универсалы",
+                list: ["Broodmother", "Chen", "Clockwerk", "Dark_Seer", "Dazzle", "Enigma", "Io", "Lone_Druid", "Lycan", "Magnus", "Marci", "Mirana", "Nyx_Assassin", "Ogre_Magi", "Pangolier", "Phoenix", "Sand_King", "Snapfire", "Techies", "Vengeful_Spirit", "Venomancer", "Visage", "Void_Spirit", "Windranger", "Winter_Wyvern"]
+            }
+        };
 
         let selectedEnemies = [];
         const grid = document.getElementById('grid');
         const counter = document.getElementById('counter');
 
-        // Создание карточек
-        heroes.forEach(name => {
-            const card = document.createElement('div');
-            card.className = 'hero-card';
-            
-            // Заменяем _ на пробел для отображения имени
-            const displayName = name.replace(/_/g, ' ');
+        // Отрисовка
+        for (const key in heroData) {
+            // Добавляем заголовок группы
+            const header = document.createElement('div');
+            header.className = `attr-header ${key}`;
+            header.innerText = heroData[key].name;
+            grid.appendChild(header);
 
-            card.innerHTML = `
-                <img src="images/${name}.png" alt="${name}" loading="lazy">
-                <div class="hero-name">${displayName}</div>
-            `;
-            
-            card.onclick = () => {
-                if (card.classList.contains('selected')) {
-                    card.classList.remove('selected');
-                    selectedEnemies = selectedEnemies.filter(h => h !== name);
-                } else if (selectedEnemies.length < 5) {
-                    card.classList.add('selected');
-                    selectedEnemies.push(name);
-                }
-                counter.innerText = `Выбрано врагов: ${selectedEnemies.length} / 5`;
-            };
-            grid.appendChild(card);
-        });
+            // Добавляем героев группы
+            heroData[key].list.forEach(name => {
+                const card = document.createElement('div');
+                card.className = 'hero-card';
+                const displayName = name.replace(/_/g, ' ');
+
+                card.innerHTML = `
+                    <img src="images/${name}.png" alt="${name}" loading="lazy">
+                    <div class="hero-name">${displayName}</div>
+                `;
+                
+                card.onclick = () => {
+                    if (card.classList.contains('selected')) {
+                        card.classList.remove('selected');
+                        selectedEnemies = selectedEnemies.filter(h => h !== name);
+                    } else if (selectedEnemies.length < 5) {
+                        card.classList.add('selected');
+                        selectedEnemies.push(name);
+                    }
+                    counter.innerText = `Выбрано врагов: ${selectedEnemies.length} / 5`;
+                };
+                grid.appendChild(card);
+            });
+        }
 
         function sendToBot() {
             if (selectedEnemies.length === 0) {
                 tg.showAlert("Выбери хотя бы одного врага!");
                 return;
             }
-
-            let data = {
+            tg.sendData(JSON.stringify({
                 user_role: 3, 
                 enemies: selectedEnemies,
                 allies: {}
-            };
-            
-            tg.sendData(JSON.stringify(data));
+            }));
         }
     </script>
 </body>
